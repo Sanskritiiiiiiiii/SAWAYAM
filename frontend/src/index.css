@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Public+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 38 100% 99%;
+        --foreground: 28 10% 10%;
+        --card: 0 0% 100%;
+        --card-foreground: 28 10% 10%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 28 10% 10%;
+        --primary: 17 88% 48%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 173 68% 25%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 40 12% 96%;
+        --muted-foreground: 28 10% 46%;
+        --accent: 33 100% 93%;
+        --accent-foreground: 17 88% 48%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 40 12% 88%;
+        --input: 40 12% 88%;
+        --ring: 17 88% 48%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-[#FFFBF7] text-foreground;
+        font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Manrope', sans-serif;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-[#EA580C] text-white hover:bg-[#EA580C]/90 h-12 px-8 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95;
+    }
+    .btn-secondary {
+        @apply bg-white text-[#0F766E] border-2 border-[#0F766E]/20 hover:border-[#0F766E] hover:bg-[#0F766E]/5 h-12 px-8 rounded-full font-medium transition-all;
+    }
+    .btn-sos {
+        @apply bg-[#DC2626] text-white h-14 w-14 sm:h-16 sm:w-16 rounded-full hover:scale-105 font-black tracking-widest shadow-2xl;
+    }
+    .card-job {
+        @apply bg-white rounded-xl p-6 border border-stone-100 shadow-sm hover:border-orange-200 transition-colors relative overflow-hidden;
+    }
+    .badge-safety {
+        @apply inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-bold uppercase tracking-wider border border-teal-100;
+    }
+}
