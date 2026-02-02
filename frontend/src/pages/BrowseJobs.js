@@ -91,9 +91,10 @@ const BrowseJobs = () => {
                     {job.location}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    {job.duration}
+                     <Clock className="h-4 w-4" />
+                     {job.time || job.duration || "Not Mentioned"}
                   </div>
+
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-stone-200">

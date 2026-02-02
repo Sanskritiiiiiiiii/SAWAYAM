@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogOut, LayoutDashboard, Briefcase, Shield, AlertCircle, Info, Menu, X } from 'lucide-react';
+import { ShieldCheck, LogOut, LayoutDashboard, Briefcase, Shield, AlertCircle, Info, Menu, X, BookOpen } from 'lucide-react';
 import { UserContext } from '../App';
 import { Button } from './ui/button';
 
@@ -67,6 +67,13 @@ const Navbar = () => {
                   </Button>
                 </Link>
 
+                <Link to="/schemes" data-testid="schemes-link">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Schemes
+                  </Button>
+                </Link>
+
                 <div className="flex items-center gap-3 pl-4 border-l border-stone-200">
                   <div className="text-right">
                     <p className="text-sm font-semibold text-[#1C1917]" data-testid="user-name">{user.name}</p>
@@ -81,6 +88,9 @@ const Navbar = () => {
               <>
                 <Link to="/about" data-testid="about-link-guest">
                   <Button variant="ghost" size="sm">About</Button>
+                </Link>
+                <Link to="/schemes" data-testid="schemes-link-guest">
+                  <Button variant="ghost" size="sm">Schemes</Button>
                 </Link>
                 <Link to="/login" data-testid="login-link">
                   <Button className="btn-primary" size="sm">Get Started</Button>
@@ -148,6 +158,13 @@ const Navbar = () => {
                   </Button>
                 </Link>
 
+                <Link to="/schemes" onClick={closeMobileMenu}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Schemes
+                  </Button>
+                </Link>
+
                 <Button variant="outline" size="sm" onClick={handleLogout} className="w-full justify-start gap-2">
                   <LogOut className="h-4 w-4" />
                   Logout
@@ -157,6 +174,9 @@ const Navbar = () => {
               <>
                 <Link to="/about" onClick={closeMobileMenu}>
                   <Button variant="ghost" size="sm" className="w-full">About</Button>
+                </Link>
+                <Link to="/schemes" onClick={closeMobileMenu}>
+                  <Button variant="ghost" size="sm" className="w-full">Schemes</Button>
                 </Link>
                 <Link to="/login" onClick={closeMobileMenu}>
                   <Button className="btn-primary w-full">Get Started</Button>

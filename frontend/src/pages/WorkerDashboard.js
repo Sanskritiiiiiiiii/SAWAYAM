@@ -14,13 +14,11 @@ const WorkerDashboard = () => {
   const [policies, setPolicies] = useState([]);
   const [stats, setStats] = useState({ active: 0, completed: 0, earnings: 0 });
 
-  useEffect(() => {
-  const fetchData = async () => {
-    // your code
-  };
+ useEffect(() => {
+  if (!user) return;
 
   fetchData();
-}, []);
+}, [user]);
 
 
   const fetchData = async () => {

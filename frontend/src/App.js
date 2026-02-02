@@ -13,6 +13,7 @@ import SafetyPolicies from './pages/SafetyPolicies';
 import SOSPage from './pages/SOSPage';
 import ImpactPage from './pages/ImpactPage';
 import PostJob from './pages/PostJob';
+import GovernmentSchemes from './pages/GovernmentSchemes';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -54,6 +55,7 @@ function App() {
             <Route path="/employer/dashboard" element={user?.role === 'employer' ? <EmployerDashboard /> : <Navigate to="/login" />} />
             <Route path="/employer/post-job" element={user?.role === 'employer' ? <PostJob /> : <Navigate to="/login" />} />
             <Route path="/about" element={<ImpactPage />} />
+            <Route path="/schemes" element={<GovernmentSchemes />} />
           </Routes>
         </BrowserRouter>
       </div>
