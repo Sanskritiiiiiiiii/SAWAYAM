@@ -1,12 +1,21 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MapPin, Clock, ShieldCheck, User, CheckCircle2 } from "lucide-react";
-import { Button } from "../components/ui/button";
+
+import {
+  MapPin,
+  Clock,
+  ShieldCheck,
+  User,
+  CheckCircle2,
+} from "lucide-react";
+
 import Navbar from "../components/Navbar";
+import { Button } from "../components/ui/button";
+import { Toaster } from "../components/ui/sonner";
+
 import { UserContext, API } from "../App";
 import { toast } from "sonner";
-import { Toaster } from "../components/ui/sonner";
 
 import {
   Dialog,
@@ -18,34 +27,57 @@ import {
 
 const JobDetails = () => {
   const { id } = useParams();
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [applying, setApplying] = useState(false);
 
+  // Modal state (Safety Policy)
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [policyId, setPolicyId] = useState(null);
 
-  // ✅ Fetch Job (ONLY ONE)
-  useEffect(() => {
-    const fetchJob = async () => {
-      try {
-        const response = await axios.get(`${API}/jobs/${id}`);
-        setJob(response.data);
-      } catch (error) {
-        console.error("Error fetching job:", error);
-        toast.error("Job not found");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // -----------------------------
+  // Fetch Job Details
+  // -----------------------------
+  const fetchJobDetails = async () => {
+    try {
+      const response = await axios.get(`${API}/jobs/${id}`);
+      setJob(response.data);
+    } catch (error) {
+      console.error("Error fetching job:", error);
+      toast.error("Job not found");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchJob();
+  useEffect(() => {
+    fetchJobDetails();
   }, [id]);
 
-  // ✅ Apply Job (Correct + Safe)
+  // -----------------------------
+  // Extract readable error message
+  // -----------------------------
+  const getErrorMessage = (error) => {
+    const detail = error.response?.data?.detail;
+
+    if (!detail) return "Something went wrong. Please try again.";
+
+    if (typeof detail === "string") return detail;
+
+    if (Array.isArray(detail)) {
+      return detail[0]?.msg || "Validation error occurred.";
+    }
+
+    return "Request failed.";
+  };
+
+  // -----------------------------
+  // Apply for Job
+  // -----------------------------
   const handleApply = async () => {
     if (!user?.id) {
       toast.error("Please login first!");
@@ -60,57 +92,42 @@ const JobDetails = () => {
         worker_name: user.name,
       });
 
-      // ✅ Success
+      // Show policy activation modal
       setPolicyId(response.data.policy_id);
       setShowPolicyModal(true);
 
-      toast.success(response.data.message || "Job accepted successfully ✅");
+      toast.success(
+        response.data.message || "Job accepted successfully!"
+      );
 
+      // Redirect after a short delay
       setTimeout(() => {
         navigate("/worker/dashboard");
       }, 3000);
     } catch (error) {
-      console.error("Error applying:", error);
-
-      let message = "Failed to apply";
-
-      // ✅ Handle FastAPI errors safely
-      if (error.response?.data?.detail) {
-        if (typeof error.response.data.detail === "string") {
-          message = error.response.data.detail;
-        } else if (Array.isArray(error.response.data.detail)) {
-          message =
-            error.response.data.detail[0]?.msg || "Validation error occurred";
-        }
-      }
-
-      toast.error(message);
+      console.error("Error applying for job:", error);
+      toast.error(getErrorMessage(error));
     } finally {
       setApplying(false);
     }
   };
 
-  // ✅ Loading UI
+  // -----------------------------
+  // Loading / Empty States
+  // -----------------------------
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFFBF7]">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
+      <PageWrapper>
+        <p className="text-muted-foreground">Loading...</p>
+      </PageWrapper>
     );
   }
 
-  // ✅ Job Not Found UI
   if (!job) {
     return (
-      <div className="min-h-screen bg-[#FFFBF7]">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Job not found</p>
-        </div>
-      </div>
+      <PageWrapper>
+        <p className="text-muted-foreground">Job not found</p>
+      </PageWrapper>
     );
   }
 
@@ -121,7 +138,7 @@ const JobDetails = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          {/* Header */}
+          {/* ================= HEADER ================= */}
           <div className="flex justify-between mb-6">
             <div>
               <div className="badge-safety mb-3">
@@ -143,58 +160,49 @@ const JobDetails = () => {
             </div>
           </div>
 
-          {/* Description */}
-          <p className="text-muted-foreground mb-6">{job.description}</p>
+          {/* ================= DESCRIPTION ================= */}
+          <p className="text-muted-foreground mb-6">
+            {job.description}
+          </p>
 
-          {/* Details */}
+          {/* ================= DETAILS ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            {/* Location */}
-            <div className="flex items-center gap-3 p-4 bg-stone-50 rounded-lg">
-              <MapPin className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Location</p>
-                <p className="font-semibold">{job.location}</p>
-              </div>
-            </div>
+            <DetailCard
+              icon={<MapPin className="h-5 w-5 text-orange-500" />}
+              label="Location"
+              value={job.location}
+            />
 
-            {/* Duration */}
-            <div className="flex items-center gap-3 p-4 bg-stone-50 rounded-lg">
-              <Clock className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Duration</p>
-                <p className="font-semibold">{job.duration}</p>
-              </div>
-            </div>
+            <DetailCard
+              icon={<Clock className="h-5 w-5 text-orange-500" />}
+              label="Duration"
+              value={job.duration}
+            />
 
-            {/* Employer */}
-            <div className="flex items-center gap-3 p-4 bg-stone-50 rounded-lg">
-              <User className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-xs text-muted-foreground">Employer</p>
-                <p className="font-semibold">{job.employer_name}</p>
-              </div>
-            </div>
+            <DetailCard
+              icon={<User className="h-5 w-5 text-orange-500" />}
+              label="Employer"
+              value={job.employer_name}
+            />
 
-            {/* Safety Fee */}
-            <div className="flex items-center gap-3 p-4 bg-stone-50 rounded-lg">
-              <ShieldCheck className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-xs text-muted-foreground">Safety Fee</p>
-                <p className="font-semibold text-green-600">
-                  ₹2 (auto-deducted)
-                </p>
-              </div>
-            </div>
+            <DetailCard
+              icon={<ShieldCheck className="h-5 w-5 text-green-600" />}
+              label="Safety Fee"
+              value="₹2 (auto-deducted)"
+              highlight
+            />
           </div>
 
-          {/* Apply Button */}
+          {/* ================= APPLY BUTTON ================= */}
           {job.status === "open" ? (
             <Button
               className="btn-primary w-full text-lg h-14"
               onClick={handleApply}
               disabled={applying}
             >
-              {applying ? "Processing..." : "Accept Job & Activate Safety"}
+              {applying
+                ? "Processing..."
+                : "Accept Job & Activate Safety"}
             </Button>
           ) : (
             <div className="text-center py-4 bg-stone-100 rounded-lg">
@@ -206,7 +214,7 @@ const JobDetails = () => {
         </div>
       </div>
 
-      {/* Policy Modal */}
+      {/* ================= POLICY MODAL ================= */}
       <Dialog open={showPolicyModal} onOpenChange={setShowPolicyModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -231,3 +239,35 @@ const JobDetails = () => {
 };
 
 export default JobDetails;
+
+//
+// =====================================================
+// Small Reusable Components (Human Style)
+// =====================================================
+//
+
+const PageWrapper = ({ children }) => (
+  <div className="min-h-screen bg-[#FFFBF7]">
+    <Navbar />
+    <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+      {children}
+    </div>
+  </div>
+);
+
+const DetailCard = ({ icon, label, value, highlight }) => (
+  <div className="flex items-center gap-3 p-4 bg-stone-50 rounded-lg">
+    {icon}
+
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p
+        className={`font-semibold ${
+          highlight ? "text-green-600" : ""
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  </div>
+);

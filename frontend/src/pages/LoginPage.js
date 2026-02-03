@@ -1,110 +1,166 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { ShieldCheck, User, Briefcase, ArrowRight } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+import { ShieldCheck, User, Briefcase, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input.jsx";
-import { Label } from '../components/ui/label';
-import { UserContext, API } from '../App';
-import { toast } from 'sonner';
-import { Toaster } from '../components/ui/sonner';
+import { Label } from "../components/ui/label";
+import { Toaster } from "../components/ui/sonner";
+
+import { UserContext, API } from "../App";
 
 const LoginPage = () => {
-  const [role, setRole] = useState(null);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
-  const { login } = useContext(UserContext);
   const navigate = useNavigate();
+  const { login } = useContext(UserContext);
 
-  const handleRoleSelect = (selectedRole) => {
-    setRole(selectedRole);
+  // Role Selection (worker/employer)
+  const [role, setRole] = useState(null);
+
+  // Toggle between Login and Register mode
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  // Form Data State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  // Small helper to update form fields (cleaner + human style)
+  const updateField = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
+  // Handle form submission (Login/Register)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
+      let response;
+
+      // Register Flow
       if (isRegistering) {
-        const response = await axios.post(`${API}/auth/register`, {
+        response = await axios.post(`${API}/auth/register`, {
           ...formData,
-          role
+          role,
         });
-        login(response.data);
-        toast.success('Account created successfully!');
-      } else {
-        const response = await axios.post(`${API}/auth/login`, {
-          email: formData.email,
-          role
-        });
-        login(response.data);
-        toast.success('Logged in successfully!');
+
+        toast.success("Account created successfully!");
       }
-      
-      navigate(role === 'worker' ? '/worker/dashboard' : '/employer/dashboard');
+
+      // Login Flow
+      else {
+        response = await axios.post(`${API}/auth/login`, {
+          email: formData.email,
+          role,
+        });
+
+        toast.success("Logged in successfully!");
+      }
+
+      // Save user in global context
+      login(response.data);
+
+      // Redirect user based on role
+      navigate(
+        role === "worker"
+          ? "/worker/dashboard"
+          : "/employer/dashboard"
+      );
     } catch (error) {
+      // Friendly error handling
       if (error.response?.status === 404 && !isRegistering) {
-        toast.error('Account not found. Please register first.');
+        toast.error("Account not found. Please register first.");
         setIsRegistering(true);
       } else if (error.response?.status === 400 && isRegistering) {
-        toast.error('Account already exists. Please login.');
+        toast.error("Account already exists. Please login.");
         setIsRegistering(false);
       } else {
-        toast.error('Something went wrong. Please try again.');
+        toast.error("Something went wrong. Please try again.");
       }
     }
   };
 
+  // =====================================================
+  // ROLE SELECTION SCREEN
+  // =====================================================
   if (!role) {
     return (
       <div className="min-h-screen hero-gradient flex items-center justify-center">
         <Toaster position="top-right" />
+
         <div className="max-w-4xl mx-auto px-4 py-12">
+          {/* Heading */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
               <ShieldCheck className="h-12 w-12 text-[#EA580C]" />
-              <span className="text-4xl font-bold text-[#1C1917]">SWAYAM</span>
+              <span className="text-4xl font-bold text-[#1C1917]">
+                SWAYAM
+              </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#1C1917] mb-4" data-testid="role-select-heading">
+
+            <h1
+              className="text-3xl md:text-4xl font-bold text-[#1C1917] mb-4"
+              data-testid="role-select-heading"
+            >
               Welcome to SWAYAM
             </h1>
-            <p className="text-lg text-muted-foreground">Choose how you want to continue</p>
+
+            <p className="text-lg text-muted-foreground">
+              Choose how you want to continue
+            </p>
           </div>
 
+          {/* Role Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div 
-              onClick={() => handleRoleSelect('worker')}
+            {/* Worker */}
+            <div
+              onClick={() => setRole("worker")}
               className="card-job hover-lift cursor-pointer p-8 text-center"
               data-testid="worker-role-card"
             >
               <div className="bg-orange-50 p-6 rounded-full w-fit mx-auto mb-6">
                 <User className="h-12 w-12 text-[#EA580C]" />
               </div>
-              <h2 className="text-2xl font-bold text-[#1C1917] mb-3">I'm a Worker</h2>
+
+              <h2 className="text-2xl font-bold text-[#1C1917] mb-3">
+                I'm a Worker
+              </h2>
+
               <p className="text-muted-foreground mb-6">
                 Find verified gigs with instant safety protection
               </p>
+
               <Button className="btn-primary w-full gap-2">
                 Continue as Worker
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </div>
 
-            <div 
-              onClick={() => handleRoleSelect('employer')}
+            {/* Employer */}
+            <div
+              onClick={() => setRole("employer")}
               className="card-job hover-lift cursor-pointer p-8 text-center"
               data-testid="employer-role-card"
             >
               <div className="bg-teal-50 p-6 rounded-full w-fit mx-auto mb-6">
                 <Briefcase className="h-12 w-12 text-[#0F766E]" />
               </div>
-              <h2 className="text-2xl font-bold text-[#1C1917] mb-3">I'm an Employer</h2>
+
+              <h2 className="text-2xl font-bold text-[#1C1917] mb-3">
+                I'm an Employer
+              </h2>
+
               <p className="text-muted-foreground mb-6">
                 Hire verified workers for trusted, safe service
               </p>
+
               <Button className="btn-secondary w-full gap-2">
                 Continue as Employer
                 <ArrowRight className="h-5 w-5" />
@@ -116,25 +172,43 @@ const LoginPage = () => {
     );
   }
 
+  // =====================================================
+  // LOGIN / REGISTER FORM SCREEN
+  // =====================================================
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center">
       <Toaster position="top-right" />
+
       <div className="max-w-md w-full mx-auto px-4 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <ShieldCheck className="h-8 w-8 text-[#EA580C]" />
-              <span className="text-2xl font-bold text-[#1C1917]">SWAYAM</span>
+              <span className="text-2xl font-bold text-[#1C1917]">
+                SWAYAM
+              </span>
             </div>
-            <h2 className="text-2xl font-bold text-[#1C1917] mb-2" data-testid="login-form-heading">
-              {isRegistering ? 'Create Account' : 'Welcome Back'}
+
+            <h2
+              className="text-2xl font-bold text-[#1C1917] mb-2"
+              data-testid="login-form-heading"
+            >
+              {isRegistering ? "Create Account" : "Welcome Back"}
             </h2>
+
             <p className="text-sm text-muted-foreground capitalize">
               {role} Account
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+            data-testid="login-form"
+          >
+            {/* Name (Register only) */}
             {isRegistering && (
               <div>
                 <Label htmlFor="name">Full Name</Label>
@@ -143,14 +217,14 @@ const LoginPage = () => {
                   type="text"
                   placeholder="Enter your full name"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => updateField("name", e.target.value)}
                   required
-                  data-testid="name-input"
                   className="h-12 bg-stone-50"
                 />
               </div>
             )}
 
+            {/* Email */}
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -158,13 +232,13 @@ const LoginPage = () => {
                 type="email"
                 placeholder="Enter your email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => updateField("email", e.target.value)}
                 required
-                data-testid="email-input"
                 className="h-12 bg-stone-50"
               />
             </div>
 
+            {/* Phone (Register only) */}
             {isRegistering && (
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
@@ -173,34 +247,36 @@ const LoginPage = () => {
                   type="tel"
                   placeholder="Enter your phone number"
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={(e) => updateField("phone", e.target.value)}
                   required
-                  data-testid="phone-input"
                   className="h-12 bg-stone-50"
                 />
               </div>
             )}
 
-            <Button type="submit" className="btn-primary w-full" data-testid="submit-button">
-              {isRegistering ? 'Create Account' : 'Login'}
+            {/* Submit */}
+            <Button type="submit" className="btn-primary w-full">
+              {isRegistering ? "Create Account" : "Login"}
             </Button>
           </form>
 
+          {/* Toggle Mode */}
           <div className="mt-6 text-center">
             <button
-              onClick={() => setIsRegistering(!isRegistering)}
+              onClick={() => setIsRegistering((prev) => !prev)}
               className="text-sm text-[#EA580C] hover:underline"
-              data-testid="toggle-auth-mode"
             >
-              {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
+              {isRegistering
+                ? "Already have an account? Login"
+                : "Don't have an account? Register"}
             </button>
           </div>
 
+          {/* Back */}
           <div className="mt-4 text-center">
             <button
               onClick={() => setRole(null)}
               className="text-sm text-muted-foreground hover:underline"
-              data-testid="back-to-role-select"
             >
               Back to role selection
             </button>
