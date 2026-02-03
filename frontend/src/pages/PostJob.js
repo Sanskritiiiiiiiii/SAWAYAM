@@ -49,9 +49,7 @@ const PostJob = () => {
     duration: "",
   });
 
-  // -----------------------------
   // Helper: Update Form Fields
-  // -----------------------------
   const updateField = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -59,9 +57,7 @@ const PostJob = () => {
     }));
   };
 
-  // -----------------------------
   // Submit Job Posting
-  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

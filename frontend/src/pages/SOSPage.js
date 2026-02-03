@@ -61,17 +61,13 @@ const SOSPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // -----------------------------
   // Open confirmation modal
-  // -----------------------------
-  const handleEmergencySelect = (type) => {
+    const handleEmergencySelect = (type) => {
     setSelectedEmergency(type);
     setShowConfirm(true);
   };
 
-  // -----------------------------
   // Trigger SOS Request
-  // -----------------------------
   const triggerSOS = async () => {
     if (!user) {
       toast.error("Please login first to use SOS.");
@@ -156,12 +152,7 @@ const SOSPage = () => {
 
 export default SOSPage;
 
-//
-// =====================================================
-// Components (Human Style)
-// =====================================================
-//
-
+// Components 
 const WarningBanner = () => (
   <div className="bg-red-50 border-l-4 border-red-600 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
     <div className="flex items-start gap-3 sm:gap-4">
@@ -235,9 +226,7 @@ const HotlineCard = () => (
   </div>
 );
 
-//
 // ---------------- CONFIRM DIALOG ----------------
-//
 const ConfirmDialog = ({ open, triggering, onCancel, onConfirm }) => (
   <Dialog open={open} onOpenChange={onCancel}>
     <DialogContent className="sm:max-w-md mx-4">
@@ -280,9 +269,7 @@ const ConfirmDialog = ({ open, triggering, onCancel, onConfirm }) => (
   </Dialog>
 );
 
-//
 // ---------------- SUCCESS DIALOG ----------------
-//
 const SuccessDialog = ({ open, onClose }) => (
   <Dialog open={open} onOpenChange={onClose}>
     <DialogContent className="sm:max-w-md mx-4">

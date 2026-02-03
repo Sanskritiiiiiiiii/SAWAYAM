@@ -1,5 +1,3 @@
-// craco.config.js (LOCAL CLEAN VERSION)
-
 const path = require("path");
 
 module.exports = {
@@ -19,7 +17,6 @@ module.exports = {
     },
 
     configure: (webpackConfig) => {
-      // Reduce watched directories (prevents lag)
       webpackConfig.watchOptions = {
         ...webpackConfig.watchOptions,
         ignored: [

@@ -39,9 +39,7 @@ const BrowseJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  // -----------------------------
   // Fetch Open Jobs
-  // -----------------------------
   const fetchJobs = async () => {
     try {
       const response = await axios.get(`${API}/jobs?status=open`);
@@ -56,9 +54,7 @@ const BrowseJobs = () => {
     fetchJobs();
   }, []);
 
-  // -----------------------------
-  // Filtered Jobs (Derived State)
-  // -----------------------------
+  // Filtered Jobs (Derived State)  
   const filteredJobs =
     categoryFilter === "all"
       ? jobs
@@ -135,11 +131,6 @@ const BrowseJobs = () => {
 
 export default BrowseJobs;
 
-//
-// =====================================================
-// Reusable Components (Human Style)
-// =====================================================
-//
 
 const JobCard = ({ job, onView }) => {
   return (

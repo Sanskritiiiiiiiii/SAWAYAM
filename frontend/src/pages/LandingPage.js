@@ -105,12 +105,7 @@ const LandingPage = () => {
 
 export default LandingPage;
 
-//
-// =====================================================
-// Components (Human Style)
-// =====================================================
-//
-
+// Components 
 const HeroSection = () => (
   <section className="hero-gradient py-20 md:py-32">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -28,9 +28,7 @@ const WorkerDashboard = () => {
     earnings: 0,
   });
 
-  // -----------------------------
   // Helper: Calculate Dashboard Stats
-  // -----------------------------
   const calculateStats = (jobList) => {
     const activeJobs = jobList.filter(
       (job) => job.status === "assigned"
@@ -51,9 +49,7 @@ const WorkerDashboard = () => {
     });
   };
 
-  // -----------------------------
   // Fetch Jobs + Safety Policies
-  // -----------------------------
   const fetchDashboardData = async () => {
     try {
       const [jobsRes, policiesRes] = await Promise.all([
@@ -222,12 +218,7 @@ const WorkerDashboard = () => {
 
 export default WorkerDashboard;
 
-//
-// =====================================================
-// Small Reusable Components (Human Style)
-// =====================================================
-//
-
+// Small Reusable Components
 const StatCard = ({ icon, label, value, subtext }) => {
   return (
     <div className="card-job">

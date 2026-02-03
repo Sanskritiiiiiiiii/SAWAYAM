@@ -19,9 +19,7 @@ const SafetyPolicies = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // -----------------------------
   // Fetch Policies from Backend
-  // -----------------------------
   const fetchPolicies = async () => {
     try {
       const response = await axios.get(
@@ -75,12 +73,7 @@ const SafetyPolicies = () => {
 
 export default SafetyPolicies;
 
-//
-// =====================================================
-// Reusable Components (Human Style)
-// =====================================================
-//
-
+// Reusable Components
 const LoadingState = () => (
   <div className="text-center py-12">
     <p className="text-muted-foreground">Loading...</p>

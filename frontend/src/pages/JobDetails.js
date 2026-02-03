@@ -39,9 +39,7 @@ const JobDetails = () => {
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [policyId, setPolicyId] = useState(null);
 
-  // -----------------------------
   // Fetch Job Details
-  // -----------------------------
   const fetchJobDetails = async () => {
     try {
       const response = await axios.get(`${API}/jobs/${id}`);
@@ -58,9 +56,7 @@ const JobDetails = () => {
     fetchJobDetails();
   }, [id]);
 
-  // -----------------------------
   // Extract readable error message
-  // -----------------------------
   const getErrorMessage = (error) => {
     const detail = error.response?.data?.detail;
 
@@ -75,9 +71,7 @@ const JobDetails = () => {
     return "Request failed.";
   };
 
-  // -----------------------------
   // Apply for Job
-  // -----------------------------
   const handleApply = async () => {
     if (!user?.id) {
       toast.error("Please login first!");
@@ -112,9 +106,7 @@ const JobDetails = () => {
     }
   };
 
-  // -----------------------------
   // Loading / Empty States
-  // -----------------------------
   if (loading) {
     return (
       <PageWrapper>
@@ -239,12 +231,6 @@ const JobDetails = () => {
 };
 
 export default JobDetails;
-
-//
-// =====================================================
-// Small Reusable Components (Human Style)
-// =====================================================
-//
 
 const PageWrapper = ({ children }) => (
   <div className="min-h-screen bg-[#FFFBF7]">

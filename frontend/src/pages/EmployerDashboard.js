@@ -27,9 +27,7 @@ const EmployerDashboard = () => {
     completed: 0,
   });
 
-  // -----------------------------
   // Helper: Calculate Job Stats
-  // -----------------------------
   const calculateStats = (jobList) => {
     setStats({
       open: jobList.filter((j) => j.status === "open").length,
@@ -38,9 +36,7 @@ const EmployerDashboard = () => {
     });
   };
 
-  // -----------------------------
   // Fetch Employer Jobs
-  // -----------------------------
   const fetchEmployerJobs = async () => {
     try {
       const response = await axios.get(
@@ -135,12 +131,6 @@ const EmployerDashboard = () => {
 };
 
 export default EmployerDashboard;
-
-//
-// =====================================================
-// Reusable Components (Human Developer Style)
-// =====================================================
-//
 
 const StatCard = ({ icon, label, value, subtext }) => {
   return (

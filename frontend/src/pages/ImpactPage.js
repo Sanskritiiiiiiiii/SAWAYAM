@@ -39,9 +39,7 @@ const ImpactPage = () => {
     sos_responded: 0,
   });
 
-  // -----------------------------
   // Fetch Impact Stats
-  // -----------------------------
   const fetchImpactStats = async () => {
     try {
       const response = await axios.get(`${API}/stats/impact`);
@@ -133,12 +131,6 @@ const ImpactPage = () => {
 
 export default ImpactPage;
 
-//
-// =====================================================
-// Reusable Components (Human Style)
-// =====================================================
-//
-
 const SectionTitle = ({ title, subtitle }) => (
   <div className="text-center mb-12">
     <h2 className="text-3xl md:text-4xl font-bold text-[#1C1917] mb-4">
@@ -163,9 +155,7 @@ const StatCard = ({ icon, value, title, subtitle, bg }) => (
   </div>
 );
 
-//
 // ---------------- HERO SECTION ----------------
-//
 const HeroSection = () => (
   <section className="hero-gradient py-20">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -184,9 +174,7 @@ const HeroSection = () => (
   </section>
 );
 
-//
 // ---------------- MISSION SECTION ----------------
-//
 const MissionSection = () => (
   <section className="py-20 bg-gradient-to-br from-orange-50 via-white to-teal-50">
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -223,9 +211,7 @@ const MissionSection = () => (
   </section>
 );
 
-//
 // ---------------- FUTURE CARD ----------------
-//
 const FutureCard = ({ plan }) => (
   <div className="card-job">
     <div className="bg-orange-50 p-3 rounded-full w-fit mb-4">
@@ -240,9 +226,7 @@ const FutureCard = ({ plan }) => (
   </div>
 );
 
-//
 // ---------------- FOOTER ----------------
-//
 const Footer = () => (
   <footer className="bg-[#1C1917] text-white py-12">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

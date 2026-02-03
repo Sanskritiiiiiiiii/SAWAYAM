@@ -67,6 +67,20 @@ This provides:
 - **Fonts**: Manrope (headings) + Public Sans (body)
 - **Theme**: Warm, empowering, women-centric
 
+## 🏗️ System Architecture / Approach
+
+SWAYAM is a full-stack safety platform for women gig workers.
+
+- The frontend is built using React + Tailwind CSS.
+- The backend is built with FastAPI.
+- MongoDB stores users, jobs, safety policies, and SOS alerts.
+
+Workflow:
+1. Employers post jobs
+2. Workers accept jobs
+3. ₹2 safety fee activates protection automatically
+4. SOS can be triggered in emergencies
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -75,6 +89,17 @@ This provides:
 - MongoDB
 
 Make sure MongoDB is running locally or you have a MongoDB Atlas connection in `.env`.
+
+⚠️ Note: Create a `.env` file inside the `backend/` folder.
+
+Example:
+
+```env
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=swayam_db
+```
+
+These steps are written for Windows PowerShell.
 
 ### Installation
 
@@ -167,8 +192,10 @@ swayam/
 │ └── .env
 │
 └── README.md
-
 ```
+
+Note: `.env` is not included in the repository. Please create it manually.
+
 ## 📊 Impact Metrics
 
 The platform tracks and displays:
@@ -179,8 +206,8 @@ The platform tracks and displays:
 
 ## 🔮 Future Improvements
 
-- Real payment integration
-- SMS-based SOS alerts
+- Payment integration (Razorpay)
+- SMS-based SOS alerts (Twilio)
 - GPS live tracking
 - Worker rating system
 - Multi-language support

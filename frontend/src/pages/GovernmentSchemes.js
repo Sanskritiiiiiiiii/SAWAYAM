@@ -8,9 +8,7 @@ const GovernmentSchemes = () => {
   const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // -----------------------------
   // Fetch schemes from backend
-  // -----------------------------
   const fetchSchemes = async () => {
     try {
       const response = await axios.get(`${API}/schemes`);
@@ -61,12 +59,6 @@ const GovernmentSchemes = () => {
 };
 
 export default GovernmentSchemes;
-
-//
-// =====================================================
-// Reusable Components (Human Style)
-// =====================================================
-//
 
 const LoadingState = () => (
   <p className="text-center text-gray-500">Loading schemes...</p>

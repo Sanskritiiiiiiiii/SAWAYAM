@@ -87,9 +87,7 @@ const LoginPage = () => {
     }
   };
 
-  // =====================================================
   // ROLE SELECTION SCREEN
-  // =====================================================
   if (!role) {
     return (
       <div className="min-h-screen hero-gradient flex items-center justify-center">
@@ -172,9 +170,7 @@ const LoginPage = () => {
     );
   }
 
-  // =====================================================
   // LOGIN / REGISTER FORM SCREEN
-  // =====================================================
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center">
       <Toaster position="top-right" />
