@@ -73,7 +73,7 @@ const JobDetails = () => {
 
   // Apply for Job
   const handleApply = async () => {
-    if (!user?.id) {
+    if (!user?.email) {
       toast.error("Please login first!");
       return;
     }
@@ -82,9 +82,10 @@ const JobDetails = () => {
 
     try {
       const response = await axios.post(`${API}/jobs/${id}/apply`, {
-        worker_id: user.id,
-        worker_name: user.name,
-      });
+  worker_name: user.name,
+  worker_email: user.email,
+});
+
 
       // Show policy activation modal
       setPolicyId(response.data.policy_id);

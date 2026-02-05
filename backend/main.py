@@ -1,85 +1,37 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
 from typing import Optional, List, Dict
 from datetime import datetime
 
+from database import (
+    users_collection,
+    jobs_collection,
+    schemes_collection,
+    policies_collection,
+)
+
 app = FastAPI()
 
-
-# Allow frontend to call backend APIs
+# -----------------------
+# CORS
+# -----------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 # -----------------------
-# In-memory dummy storage
-# -----------------------
-users_db = []
-ratings_db = []
-
-schemes_db = [
-    {
-        "id": "SCH001",
-        "title": "Mudra Loan for Women Entrepreneurs",
-        "description": "Loan scheme for women starting small businesses with no collateral required.",
-        "benefits": "Loans up to ₹10 lakh under Shishu, Kishore, and Tarun categories.",
-        "eligibility": "Women entrepreneurs, self-employed, small business owners.",
-        "category": "Loan",
-        "external_link": "https://www.mudra.org.in/",
-        "created_at": datetime.now().isoformat(),
-    },
-    {
-        "id": "SCH002",
-        "title": "Mahila Shakti Kendra",
-        "description": "Women empowerment centers providing support services and guidance.",
-        "benefits": "Skill training, employment linkage, counseling, legal aid support.",
-        "eligibility": "All women, especially from rural and vulnerable backgrounds.",
-        "category": "Welfare",
-        "external_link": "https://wcd.nic.in/",
-        "created_at": datetime.now().isoformat(),
-    },
-]
-
-
-jobs_db = [
-    {
-        "id": "1",
-        "title": "House Cleaning",
-        "location": "Delhi",
-        "pay": 500,
-        "category": "Cleaning",
-        "duration": "3 hours",
-        "status": "open",
-        "verified": True,
-    },
-    {
-        "id": "2",
-        "title": "Babysitting Job",
-        "location": "Mumbai",
-        "pay": 800,
-        "category": "Caregiving",
-        "duration": "5 hours",
-        "status": "open",
-        "verified": True,
-    },
-]
-
-
-# -----------------------
-# Request Models
+# Models
 # -----------------------
 class RegisterRequest(BaseModel):
     name: str
     email: str
     phone: str
     role: str
-
     skills: List[str] = []
     verifications: Dict[str, bool] = {
         "phone_verified": False,
@@ -87,151 +39,178 @@ class RegisterRequest(BaseModel):
         "reference_verified": False,
     }
 
-
 class LoginRequest(BaseModel):
     email: str
     role: str
 
+class ApplyJobRequest(BaseModel):
+    worker_email: str
+    worker_name: str
 
-class RatingCreate(BaseModel):
-    job_id: str
-    rater_email: str
-    ratee_email: str
-    rating: int
-    review: Optional[str] = None
-
+class SOSRequest(BaseModel):
+    emergency_type: str
+    location: Optional[str] = None
 
 # -----------------------
-# Root Check
+# Root
 # -----------------------
 @app.get("/")
 def root():
     return {"message": "SWAYAM Backend Running Successfully"}
 
-
 # -----------------------
-# Auth APIs
+# Auth
 # -----------------------
 @app.post("/api/auth/register")
 def register(user: RegisterRequest):
-    if any(u["email"] == user.email for u in users_db):
+    if users_collection.find_one({"email": user.email}):
         raise HTTPException(status_code=400, detail="User already exists")
 
-    users_db.append(user.dict())
+    users_collection.insert_one(user.dict())
     return user.dict()
-
 
 @app.post("/api/auth/login")
 def login(data: LoginRequest):
-    for u in users_db:
-        if u["email"] == data.email and u["role"] == data.role:
-            return u
-
-    raise HTTPException(status_code=404, detail="Account not found")
-
-
-# -----------------------
-# Worker Profile Updates
-# -----------------------
-@app.patch("/api/workers/{worker_email}/skills")
-def update_worker_skills(worker_email: str, update: Dict[str, List[str]]):
-    for u in users_db:
-        if u["email"] == worker_email and u["role"] == "worker":
-            u["skills"] = update["skills"]
-            return {"message": "Skills updated", "skills": u["skills"]}
-
-    raise HTTPException(status_code=404, detail="Worker not found")
-
-
-@app.patch("/api/workers/{worker_email}/verification")
-def update_worker_verification(worker_email: str, update: Dict[str, bool]):
-    for u in users_db:
-        if u["email"] == worker_email and u["role"] == "worker":
-            key = update["verification_type"]
-            u["verifications"][key] = update["status"]
-
-            return {
-                "message": "Verification updated",
-                "verifications": u["verifications"],
-            }
-
-    raise HTTPException(status_code=404, detail="Worker not found")
-
-
-# -----------------------
-# Ratings APIs
-# -----------------------
-@app.post("/api/ratings")
-def create_rating(rating_data: RatingCreate):
-    entry = rating_data.dict()
-    entry["created_at"] = datetime.now().isoformat()
-
-    ratings_db.append(entry)
-    return {"message": "Rating submitted successfully", "rating": entry}
-
-
-@app.get("/api/ratings/user/{user_email}")
-def get_user_ratings(user_email: str):
-    return [r for r in ratings_db if r["ratee_email"] == user_email]
-
-
-@app.get("/api/ratings/job/{job_id}")
-def check_job_rated(job_id: str, user_email: str):
-    rated = any(
-        r["job_id"] == job_id and r["rater_email"] == user_email
-        for r in ratings_db
+    user = users_collection.find_one(
+        {"email": data.email, "role": data.role},
+        {"_id": 0},
     )
-    return {"rated": rated}
-
-
-# -----------------------
-# Government Schemes APIs
-# -----------------------
-@app.get("/api/schemes")
-def get_schemes(category: Optional[str] = None):
-    if not category:
-        return schemes_db
-
-    return [
-        s for s in schemes_db
-        if s["category"].lower() == category.lower()
-    ]
-
-
-@app.get("/api/schemes/{scheme_id}")
-def get_scheme(scheme_id: str):
-    for scheme in schemes_db:
-        if scheme["id"] == scheme_id:
-            return scheme
-
-    raise HTTPException(status_code=404, detail="Scheme not found")
-
+    if not user:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return user
 
 # -----------------------
-# Impact Stats API
-# -----------------------
-@app.get("/api/stats/impact")
-def impact_stats():
-    return {
-        "total_workers": len(users_db),
-        "total_jobs": len(jobs_db),
-        "policies_activated": 15,
-        "sos_responded": 8,
-    }
-
-
-# -----------------------
-# Jobs APIs
+# Jobs
 # -----------------------
 @app.get("/api/jobs")
-def get_jobs():
-    return jobs_db
-
+def get_jobs(status: Optional[str] = None):
+    query = {}
+    if status:
+        query["status"] = status
+    return list(jobs_collection.find(query, {"_id": 0}))
 
 @app.get("/api/jobs/{job_id}")
 def get_job(job_id: str):
-    for job in jobs_db:
-        if job["id"] == job_id:
-            return job
+    job = jobs_collection.find_one({"id": job_id}, {"_id": 0})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
 
-    raise HTTPException(status_code=404, detail="Job not found")
+# ✅ THIS IS THE FIXED ENDPOINT
+@app.post("/api/jobs/{job_id}/apply")
+def apply_job(job_id: str, data: ApplyJobRequest):
+    worker = users_collection.find_one({
+        "email": data.worker_email,
+        "role": "worker",
+    })
+
+    if not worker:
+        raise HTTPException(status_code=401, detail="Worker not found")
+
+    job = jobs_collection.find_one({"id": job_id})
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.get("status") != "open":
+        raise HTTPException(status_code=400, detail="Job already taken")
+
+    # Assign job
+    jobs_collection.update_one(
+        {"id": job_id},
+        {
+            "$set": {
+                "status": "assigned",
+                "assigned_to": data.worker_email,
+                "assigned_at": datetime.now().isoformat(),
+            }
+        },
+    )
+
+    # Activate safety policy
+    policy_id = f"POL-{job_id[-6:]}"
+    policies_collection.insert_one({
+        "policy_id": policy_id,
+        "job_id": job_id,
+        "worker_email": data.worker_email,
+        "status": "active",
+        "activated_at": datetime.now().isoformat(),
+    })
+
+    return {
+        "message": "Job accepted successfully",
+        "policy_id": policy_id,
+    }
+
+# -----------------------
+# Dashboard
+# -----------------------
+@app.get("/api/dashboard")
+def get_dashboard(worker_email: Optional[str] = None):
+    if not worker_email:
+        return {
+            "activeJobs": 0,
+            "completedJobs": 0,
+            "earnings": 0,
+            "safetyPolicies": 0,
+        }
+
+    active_jobs = jobs_collection.count_documents({
+        "assigned_to": worker_email,
+        "status": "assigned",
+    })
+
+    completed_jobs = jobs_collection.count_documents({
+        "assigned_to": worker_email,
+        "status": "completed",
+    })
+
+    policies = policies_collection.count_documents({
+        "worker_email": worker_email
+    })
+
+    return {
+        "activeJobs": active_jobs,
+        "completedJobs": completed_jobs,
+        "earnings": 0,
+        "safetyPolicies": policies,
+    }
+
+# -----------------------
+# Safety
+# -----------------------
+@app.get("/api/safety/policies")
+def get_safety_policies(worker_email: Optional[str] = None):
+    query = {}
+    if worker_email:
+        query["worker_email"] = worker_email
+    return list(policies_collection.find(query, {"_id": 0}))
+
+@app.post("/api/sos/trigger")
+def trigger_sos(data: SOSRequest):
+    return {
+        "message": "SOS triggered successfully",
+        "hotline": "1800-SWAYAM-911",
+        "details": {
+            "type": data.emergency_type,
+            "location": data.location,
+            "time": datetime.now().isoformat(),
+        },
+    }
+
+# -----------------------
+# Schemes
+# -----------------------
+@app.get("/api/schemes")
+def get_schemes(category: Optional[str] = None):
+    query = {}
+    if category:
+        query["category"] = {"$regex": f"^{category}$", "$options": "i"}
+    return list(schemes_collection.find(query, {"_id": 0}))
+
+@app.get("/api/schemes/{scheme_id}")
+def get_scheme(scheme_id: str):
+    scheme = schemes_collection.find_one({"id": scheme_id}, {"_id": 0})
+    if not scheme:
+        raise HTTPException(status_code=404, detail="Scheme not found")
+    return scheme
