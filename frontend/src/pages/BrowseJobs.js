@@ -22,7 +22,6 @@ import {
 
 import { API } from "../App";
 
-// Category options (kept outside component like real projects)
 const JOB_CATEGORIES = [
   "All",
   "Cleaning",
@@ -49,18 +48,16 @@ const BrowseJobs = () => {
     }
   };
 
-  // Load jobs on page mount
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  // Filtered Jobs (Derived State)  
   const filteredJobs =
     categoryFilter === "all"
       ? jobs
       : jobs.filter(
           (job) =>
-            job.category.toLowerCase() ===
+            job.category?.toLowerCase() ===
             categoryFilter.toLowerCase()
         );
 
@@ -68,13 +65,10 @@ const BrowseJobs = () => {
     <div className="min-h-screen bg-[#FFFBF7]">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ================= HEADER ================= */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* HEADER */}
         <div className="mb-8">
-          <h1
-            className="text-3xl md:text-4xl font-bold text-[#1C1917] mb-2"
-            data-testid="browse-jobs-heading"
-          >
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
             Find Your Next Gig
           </h1>
 
@@ -83,7 +77,7 @@ const BrowseJobs = () => {
           </p>
         </div>
 
-        {/* ================= FILTER ================= */}
+        {/* FILTER */}
         <div className="mb-6 flex items-center gap-4">
           <Filter className="h-5 w-5 text-muted-foreground" />
 
@@ -108,8 +102,8 @@ const BrowseJobs = () => {
           </Select>
         </div>
 
-        {/* ================= JOBS GRID ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* JOB GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredJobs.length === 0 ? (
             <EmptyState />
           ) : (
@@ -118,7 +112,7 @@ const BrowseJobs = () => {
                 key={job.id}
                 job={job}
                 onView={() =>
-                  navigate(`/worker/job/${job.id}`)
+                  navigate(`/worker/jobs/${job.id}`)  // ✅ CORRECT ROUTE
                 }
               />
             ))
@@ -132,17 +126,19 @@ const BrowseJobs = () => {
 export default BrowseJobs;
 
 
+/* ================= COMPONENTS ================= */
+
 const JobCard = ({ job, onView }) => {
   return (
-    <div className="card-job">
+    <div className="bg-white rounded-xl p-5 shadow border w-full">
       {/* Safety Badge */}
-      <div className="badge-safety mb-4">
+      <div className="flex items-center gap-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mb-4 w-fit">
         <ShieldCheck className="h-3 w-3" />
         Safety Protected
       </div>
 
-      {/* Job Title */}
-      <h3 className="text-xl font-semibold text-[#1C1917] mb-2">
+      {/* Title */}
+      <h3 className="text-lg sm:text-xl font-semibold mb-2">
         {job.title}
       </h3>
 
@@ -151,22 +147,23 @@ const JobCard = ({ job, onView }) => {
         {job.description}
       </p>
 
-      {/* Job Info */}
+      {/* Info */}
       <div className="space-y-2 mb-4">
         <InfoRow icon={<MapPin className="h-4 w-4" />}>
           {job.location}
         </InfoRow>
 
         <InfoRow icon={<Clock className="h-4 w-4" />}>
-          {job.time || job.duration || "Not Mentioned"}
+          {job.duration || "Not Mentioned"}
         </InfoRow>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-stone-200">
+      <div className="flex items-center justify-between pt-4 border-t">
         <div>
-          <div className="text-2xl font-bold text-[#0F766E]">
-            ₹{job.pay}
+          {/* ✅ USE payment NOT pay */}
+          <div className="text-xl sm:text-2xl font-bold text-[#0F766E]">
+            ₹{job.payment || 0}
           </div>
           <div className="text-xs text-muted-foreground">
             + ₹2 safety fee

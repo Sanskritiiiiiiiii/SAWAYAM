@@ -188,7 +188,8 @@ const JobCard = ({ job }) => {
         {/* Right Side */}
         <div className="text-right">
           <div className="text-2xl font-bold text-[#0F766E]">
-            ₹{job.pay}
+            ₹{job.payment}
+
           </div>
           <div className="text-xs text-muted-foreground">
             + ₹2 safety
